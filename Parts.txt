@@ -1,0 +1,2 @@
+Wireless communication module: NRF24L01 with antenna
+Line following sensor array: https://www.sparkfun.com/sparkfun-line-follower-array.html#

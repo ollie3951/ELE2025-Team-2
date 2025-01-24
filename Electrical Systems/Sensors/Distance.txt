@@ -1,0 +1,1 @@
+Ultrasonic distance sensor attached to servo motor to allow it to scan and find tennis ball before going and picking it up. https://youtube.com/shorts/P_YMeFNKZho?si=-C0yLSdyMZ1xXDwY

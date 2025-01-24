@@ -1,0 +1,7 @@
+LCD on remote controller to indicate mode ('Remote Control' and 'Autonomous'), maybe to also indicate something like arm position (up or down) and current max speed of robot (to work with a potentiometer which adjusts speed).
+
+Arduino MEGA on main robot, Arduino NANO/UNO on remote controller. Each has a transceiver (NRF24L01 - https://youtu.be/7rcVeFFHcFM?si=4Wj-_ialY6jYvzUb , Maybe also add antenna to improve range https://youtu.be/-BDCmwNssiw?si=QSOHOvpV7f0deeb9). Button on remote controller flips between remote and autonomous mode. Data exchange could involve things like motor speed, motor direction, arm control, mode. Could maybe display robot speed and other telemetry on LCDs of remote controller.
+
+Could have potentiometer on remote controller to adjust max speed of robot for remote control. Could use 2 joysticks, one for movement of robot and one for arm height (would work best for arm with adjustable height.
+
+NRF24L01 can be noise sensitive, might need to add capacitor between +3.3V and GND to bypass noise to ground, use short wires between microcontroller and module. https://youtu.be/vxF1N9asjts?si=_OUz-yygvSiQhN_P 
