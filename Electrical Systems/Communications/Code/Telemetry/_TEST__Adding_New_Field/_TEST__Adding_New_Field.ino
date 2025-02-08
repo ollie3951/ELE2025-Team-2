@@ -73,7 +73,7 @@ const char index_html[] PROGMEM = R"rawliteral(
   </style>
 </head>
 <body>
-  <h2>ESP32 DHT Server</h2>
+  <h2>ELE2025 Team 2 Telemetry Server</h2>
   <p>
     <i class="fas fa-thermometer-half" style="color:#059e8a;"></i> 
     <span class="dht-labels">Temperature</span> 
@@ -86,8 +86,19 @@ const char index_html[] PROGMEM = R"rawliteral(
     <span id="humidity">%HUMIDITY%</span>
     <sup class="units">&percnt;</sup>
   </p>
+
+
+    <p>
+    <span class="dht-labels">Time Elapsed</span> 
+    <span id="time">%TIME%</span>
+    <sup class="units">s</sup>
+  </p>
+  
 </body>
 <script>
+
+
+//Sending the new temperature value
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -97,8 +108,10 @@ setInterval(function ( ) {
   };
   xhttp.open("GET", "/temperature", true);
   xhttp.send();
-}, 1000 ) ;
+}, 500 ) ; //time between updates on page (ms)
 
+
+//sending the new humidity value
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -108,11 +121,27 @@ setInterval(function ( ) {
   };
   xhttp.open("GET", "/humidity", true);
   xhttp.send();
-}, 1000 ) ;
+}, 500 ) ; //time between updates on page (ms)
+
+
+//sending the new time value
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("time").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/time", true);
+  xhttp.send();
+}, 500 ) ; //time between updates on page (s)
+
+
 </script>
 </html>)rawliteral";
 
-// Replaces placeholder with DHT values
+
+// Replaces placeholders with values
 String processor(const String& var){
   //Serial.println(var);
   if(var == "TEMPERATURE"){
@@ -120,6 +149,9 @@ String processor(const String& var){
   }
   else if(var == "HUMIDITY"){
     return readDHTHumidity();
+  }
+  else if(var == "TIME"){
+    return String(millis()/1000);
   }
   return String();
 }
@@ -149,6 +181,9 @@ void setup(){
   });
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
+  });
+  server.on("/time", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(millis()/1000).c_str());
   });
 
   // Start server
