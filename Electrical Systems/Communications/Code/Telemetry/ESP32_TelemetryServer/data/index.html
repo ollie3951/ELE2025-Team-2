@@ -106,6 +106,7 @@ var chartH = new Highcharts.Chart({
   },
   credits: { enabled: false }
 });
+
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -149,6 +150,7 @@ var chartD = new Highcharts.Chart({
   },
   credits: { enabled: false }
 });
+
 setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
@@ -156,10 +158,10 @@ setInterval(function ( ) {
       var x = (new Date()).getTime(),
           y = parseFloat(this.responseText);
       //console.log(this.responseText);
-      if(chartH.series[0].data.length > 40) {
-        chartH.series[0].addPoint([x, y], true, true, true);
+      if(chartD.series[0].data.length > 40) {
+        chartD.series[0].addPoint([x, y], true, true, true);
       } else {
-        chartH.series[0].addPoint([x, y], true, false, true);
+        chartD.series[0].addPoint([x, y], true, false, true);
       }
     }
   };
