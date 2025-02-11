@@ -24,8 +24,22 @@
   <div id="chart-distance" class="container"></div>
 </body>
 
+
     <p>
-    <span class="dht-labels">Time Elapsed</span> 
+    <span class="rpm">Wheel Speed</span> 
+    <span id="rpm">%RPM%</span>
+    <sup class="units">rpm</sup>
+  </p>
+
+
+    <p>
+    <span class="obstruction">Distance to Nearest Obstruction</span> 
+    <span id="obstruction">%OBSTRUCTION%</span>
+    <sup class="units">cm</sup>
+  </p>
+
+    <p>
+    <span class="time">Time Elapsed</span> 
     <span id="time">%TIME%</span>
     <sup class="units">s</sup>
   </p>
@@ -71,6 +85,30 @@ setInterval(function ( ) {
   var xhttp = new XMLHttpRequest();
   xhttp.onreadystatechange = function() {
     if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("rpm").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/rpm", true);
+  xhttp.send();
+}, 300 ) ;
+
+
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("obstruction").innerHTML = this.responseText;
+    }
+  };
+  xhttp.open("GET", "/obstruction", true);
+  xhttp.send();
+}, 300 ) ;
+
+
+setInterval(function ( ) {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
       var x = (new Date()).getTime(),
           y = parseFloat(this.responseText);
       //console.log(this.responseText);
@@ -83,7 +121,7 @@ setInterval(function ( ) {
   };
   xhttp.open("GET", "/temperature", true);
   xhttp.send();
-}, 1000 ) ;
+}, 2000 ) ;
 
 var chartH = new Highcharts.Chart({
   chart:{ renderTo:'chart-humidity' },
@@ -123,7 +161,7 @@ setInterval(function ( ) {
   };
   xhttp.open("GET", "/humidity", true);
   xhttp.send();
-}, 1000 ) ;
+}, 2000 ) ;
 
 
 <!--Distance travelled graph-->
@@ -131,7 +169,7 @@ setInterval(function ( ) {
 
 var chartD = new Highcharts.Chart({
   chart:{ renderTo:'chart-distance' },
-  title: { text: 'Distance' },
+  title: { text: 'Total Distance Travelled' },
   series: [{
     showInLegend: false,
     data: []
