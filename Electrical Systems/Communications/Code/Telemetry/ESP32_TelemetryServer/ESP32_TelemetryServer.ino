@@ -6,6 +6,17 @@
 #include <DHT.h>
 
 
+//defining pins for motor encoder
+#define APin 17
+#define BPin 16
+
+//Declare variables to hold pulses for motor encoder
+volatile unsigned long ACount = 0;
+volatile unsigned long BCount = 0;
+
+//variable to hold total distance travelled by robot
+float distanceCM = 0; //initialise at zero distance
+
 // Replace with your network credentials
 const char* ssid = "Ollie’s iPhone 14";
 const char* password = "olliehotspot";
@@ -61,6 +72,19 @@ String processor(const String& var){
 
 
 void setup(){
+
+  //Declare inputs for motor encoding tracking distance
+  pinMode(APin, INPUT);
+  pinMode(BPin, INPUT);
+  //Attach interrupts
+  //Attach interrupt to APin, which will cause function ATick to execute on
+  //rising pulse
+  attachInterrupt(digitalPinToInterrupt(APin), ATick, RISING);
+  //Attach interrupt to BPin, which will cause function BTick to execute on
+  //rising pulse
+  attachInterrupt(digitalPinToInterrupt(BPin), BTick, RISING);
+
+
   // Serial port for debugging purposes
   Serial.begin(115200);
   
@@ -91,6 +115,9 @@ void setup(){
   server.on("/humidity", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", readDHTHumidity().c_str());
   });
+    server.on("/distance", HTTP_GET, [](AsyncWebServerRequest *request){
+    request->send_P(200, "text/plain", String(distanceCM).c_str());
+  });
     server.on("/time", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send_P(200, "text/plain", String(millis()/1000).c_str());
   });
@@ -100,5 +127,20 @@ void setup(){
 }
  
 void loop(){
+
+  distanceCM = 0.0217*ACount;
+  delay(100); //0.1 second delay between updates of distance
+
   
 }
+
+
+//ISRs for counting pulses
+void ATick(){
+ACount++; //Increment ACount
+}
+void BTick(){
+BCount++; //Increment BCount
+}
+
+
