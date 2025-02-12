@@ -1,0 +1,64 @@
+#define M1A 9 //M1A is connected to Arduino pin 9
+#define M1B 11 //M1B is connected to Arduio pin 11
+#define M2A 10 //M2A is connected to Arduino pin 10
+#define M2B 12 //M2B is connected to Arduino pin 12
+
+void setup()
+{
+  //Motor control pins as outputs
+  pinMode(M1A, OUTPUT);
+  pinMode(M1B, OUTPUT);
+  pinMode(M2A, OUTPUT);
+  pinMode(M2B, OUTPUT);
+}
+
+void loop()
+{
+  //Motor 1 and 2 Forward at slow speed for 5 seconds
+  analogWrite(M1A, 25);
+  analogWrite(M1B, 0);
+  analogWrite(M2A, 0);
+  analogWrite(M2B, 25);
+  delay(5000);
+
+  //Brake for 0.5 seconds
+  analogWrite(M1A, 0);
+  analogWrite(M2B, 0);
+  delay(500);
+
+  //Motor 1 forward and motor 2 reverse at slow speed for 5 seconds
+  //rotating or spinning
+  analogWrite(M1A, 25);
+  analogWrite(M1B, 0);
+  analogWrite(M2B, 0);
+  analogWrite(M2A, 25);
+  delay(5000);
+
+  //Brake for 0.5 seconds
+  analogWrite(M1A, 0);
+  analogWrite(M2B, 0);
+  delay(500);
+
+  //Motor 1 reverse and motor 2 forward at slow speed for 5 seconds
+  //rotating or spinning (opposite direction)
+  analogWrite(M1A, 0);
+  analogWrite(M1B, 25);
+  analogWrite(M2B, 25);
+  analogWrite(M2A, 0);
+  delay(5000);
+
+  //Brake for 0.5 seconds
+  analogWrite(M1A, 0);
+  analogWrite(M2B, 0);
+  delay(500);
+
+  //Backwards at 20% for 5 seconds
+  analogWrite(M1B, 25);
+  analogWrite(M2A, 25);
+  delay(5000);
+
+  //Brake for 5 seconds
+  analogWrite(M1B, 0);
+  analogWrite(M2A, 0);
+  delay(5000);
+}
