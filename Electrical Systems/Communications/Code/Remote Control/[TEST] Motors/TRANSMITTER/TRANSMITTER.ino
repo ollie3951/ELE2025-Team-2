@@ -24,14 +24,9 @@ const byte address[6] = "TEAM2"; //This address can be any 5 charcter string e.g
 const int xAxis = A5;
 const int yAxis = A3;
 
-//variables to store joystick values
-int xVal;
-int yVal;
-
-//variables for controlling the motors
-int motorSpeed; //speed and forward/reverse
-int motorDirection; //left, right or straight?
-
+//array to store values to be transmitted
+int transmitData[2]; //first element is xVal, second element is yVal
+//xVal controls motor direction, yVal motor speed
 
 void setup() 
 {
@@ -57,26 +52,18 @@ void setup()
 void loop() 
 {
 
-  //Reading joystick values, in range 0-1023. full speed forward=0, full speed reverse= 1023, full right=1023, full left=0.
-  xVal = analogRead(xAxis);
-  yVal = analogRead(yAxis);
+  //Reading joystick values, in range 0-1023. full speed forward=0, full speed reverse=1023, full right=1023, full left=0.
+  transmitData[0] = analogRead(xAxis);
+  transmitData[1] = analogRead(yAxis);
     
   //printing joystick values to serial monitor for debugging
   char buffer[50];
-  sprintf(buffer, "x-axis: %d | y-axis: %d", xVal, yVal);
+  sprintf(buffer, "x-axis: %d | y-axis: %d", transmitData[0], transmitData[1]);
   Serial.println(buffer);
 
-  //using joystick readings to get values for motor control. FULL PROCESSING OF THESE READINGS WILL BE DONE AT RECEIVER.
-  motorSpeed = yVal; //y axis controls motor speed
-  motorDirection = xVal; //x axis controls motor direction
-  
+  //sending all data to the receiver
+  radio.write(&transmitData, sizeof(transmitData));
 
-  //sending speed value to the receiver
-  radio.write(&motorSpeed, sizeof(motorSpeed));
-
-  //sending direction value to the receiver
-  radio.write(&motorDirection, sizeof(motorDirection));
-
-  delay(30); //delay between sending new data to receiver
+  delay(20); //delay between sending new data to receiver
 
 }
