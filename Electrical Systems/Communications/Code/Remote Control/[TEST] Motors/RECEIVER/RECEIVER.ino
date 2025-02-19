@@ -25,7 +25,7 @@ int receiveData[2] = {512, 512}; //initialise braking to prevent immediate motio
 //first element is xVal(direction), second element is yVal(speed)
 
 //variable to give how much speed of wheels should be changed for turn based on joystick x-axis reading
-turnAmount = 0; //initially assume to turning
+int turnAmount = 0; //initially assume to turning
 
 //variables for output to motors
 int rightOutputA = 0; //start braking
