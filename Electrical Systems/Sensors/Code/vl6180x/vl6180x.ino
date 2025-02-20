@@ -20,9 +20,6 @@ void setup() {
 }
 
 void loop() {
-  float lux = vl.readLux(VL6180X_ALS_GAIN_5);
-
-  Serial.print("Lux: "); Serial.println(lux);
   
   uint8_t range = vl.readRange();
   uint8_t status = vl.readRangeStatus();
@@ -60,5 +57,19 @@ void loop() {
   else if (status == VL6180X_ERROR_RANGEOFLOW) {
     Serial.println("Range reading overflow");
   }
-  delay(50);
+
+  if(range<15)
+  {
+    Serial.println("Very close");
+  }
+  if(15<range and range<60)
+  {
+    Serial.println("Approaching, begin breaking");
+  }
+  if(range>60)
+  {
+    Serial.println("Far away");
+  }
+  
+  delay(200);
 }

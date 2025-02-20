@@ -1,5 +1,5 @@
-//Ollie, 19/02/2025
-//Practicing remote control of motors
+//Ollie, 20/02/2025
+//Practicing remote control of motors and ToF sensor
 
 //Code for Arduino MEGA receiver
 
@@ -7,9 +7,14 @@
 
 //INSTALL LIBRARIES FROM: https://github.com/nRF24/RF24
 
+//remote control libraries
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+
+//ToF libraries
+#include <Wire.h>
+#include "Adafruit_VL6180X.h"
 
 //pins for motor control
 #define M1A 9 //M1A is connected to Arduino pin 9
@@ -39,6 +44,8 @@ RF24 radio(7, 8); //CE and CSN connected to digital pins 7 and 8 respectively
 //channel/pipe address which RF24 modules agree to commuicate through (SAME ACROSS TRANSMITTER AND RECEIVER CODE)
 const byte address[6] = "TEAM2"; //This address can be any 5 charcter string e.g. "123AB"
 
+//creating ToF object
+Adafruit_VL6180X vl = Adafruit_VL6180X(); 
 
 
 void setup()
@@ -65,15 +72,22 @@ void setup()
 
 void loop()
 {
+  //read and print distance from ToF to serial monitor
+  uint8_t range = vl.readRange(); 
+  Serial.print("Range: "); Serial.println(range);
+
+  
   if(radio.available()) //if data has been received
   {
     radio.read(&receiveData, sizeof(receiveData)); //read the data array received
-    
+
+    /*
     //print received data to serial monitor for debugging
     Serial.print("Motor Speed: ");
     Serial.println(receiveData[1]);
     Serial.print("Motor Direction: ");
     Serial.println(receiveData[0]);
+    */
   }
 
   //code which translates the received data into actual remote control motion of the motors -----------------------------------------------------------
@@ -182,5 +196,5 @@ void loop()
     
   //----------------------------------------------------------------------------------------------------------------------------------
  
-   //delay(50);
+  delay(50);
 }
