@@ -66,6 +66,13 @@ void setup()
   pinMode(M1B, OUTPUT);
   pinMode(M2A, OUTPUT);
   pinMode(M2B, OUTPUT);
+
+  //initialising ToF sensor
+  if (! vl.begin()) {
+    Serial.println("Failed to find sensor");
+    while (1);
+  }
+  Serial.println("Sensor found!");
 }
 
 
@@ -96,11 +103,11 @@ void loop()
   
   if(receiveData[0]<500) //left turn indicated, should make turnAmount -ve and proportional to receiveData[0]
   {
-    turnAmount = -(1023-receiveData[0])/12; //max turn is +-85
+    turnAmount = -(1023-receiveData[0])/10; //max turn is +-100
   }
   else if(receiveData[0]>530) //if right turn indicated, make turnAmount +ve and proportional to receiveData[0]
   {
-    turnAmount = +(receiveData[0]/12); //max turn is +-85\a
+    turnAmount = +(receiveData[0]/10); //max turn is +-100
   }
   else //when joystick is central on x-axis, make robot go straight/no turning
   {
@@ -189,6 +196,18 @@ void loop()
     }
 
   }
+
+
+    //adjusting values based on distance from wall (ToF sensor)
+    if(range<20){
+      rightOutputA=0;
+      rightOutputB=0;
+      leftOutputA=0;
+      leftOutputB=0;
+    }
+
+
+    //output values to motors  
     analogWrite(M1A,rightOutputA);
     analogWrite(M1B,rightOutputB);
     analogWrite(M2A,leftOutputA);
