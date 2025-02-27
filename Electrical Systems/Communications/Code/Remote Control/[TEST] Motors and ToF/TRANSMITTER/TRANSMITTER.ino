@@ -39,8 +39,8 @@ int transmitData[3]; //first element is xVal, second element is yVal, third elem
 void setup() 
 {
   //open serial monitor
-  Serial.begin(9600);
-  Serial.println("Serial Monitor Open");
+  //Serial.begin(9600);
+  //Serial.println("Serial Monitor Open");
 
   //state change interrupt
   pinMode(statePin, INPUT);
@@ -69,12 +69,12 @@ void loop()
   transmitData[0] = analogRead(xAxis);
   transmitData[1] = analogRead(yAxis);
   //setting robot state
-  transmitData[3] = state;
+  transmitData[2] = state;
     
   //printing joystick values to serial monitor for debugging
-  char buffer[50];
-  sprintf(buffer, "x-axis: %d | y-axis: %d | state: %d", transmitData[0], transmitData[1], transmitData[2]);
-  Serial.println(buffer);
+  //char buffer[50];
+  //sprintf(buffer, "x-axis: %d | y-axis: %d | state: %d", transmitData[0], transmitData[1], transmitData[2]);
+  //Serial.println(buffer);
 
   //sending all data to the receiver
   radio.write(&transmitData, sizeof(transmitData));

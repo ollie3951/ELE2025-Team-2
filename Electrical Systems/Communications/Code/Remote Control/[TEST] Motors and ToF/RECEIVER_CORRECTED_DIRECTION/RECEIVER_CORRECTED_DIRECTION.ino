@@ -87,9 +87,9 @@ void loop()
   if(radio.available()) //if data has been received
   {
     radio.read(&receiveData, sizeof(receiveData)); //read the data array received
-    //Serial.println(receiveData[0]);
-    //Serial.println(receiveData[1]);
-    //Serial.println(receiveData[2]);
+    Serial.println(receiveData[0]);
+    Serial.println(receiveData[1]);
+    Serial.println(receiveData[2]);
 
     /*
     //print received data to serial monitor for debugging
