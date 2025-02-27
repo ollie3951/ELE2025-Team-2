@@ -201,34 +201,48 @@ void loop()
         leftOutputA = turnAmount; //left wheel reverse
         leftOutputB = 0;
       }
-
     }
-
-
-      //adjusting values based on distance from wall (ToF sensor)
-      if(range<20){
-        rightOutputA=0;
-        rightOutputB=0;
-        leftOutputA=0;
-        leftOutputB=0;
-      }
-
-
-      //output values to motors  
-      analogWrite(M1A,rightOutputA);
-      analogWrite(M1B,rightOutputB);
-      analogWrite(M2A,leftOutputA);
-      analogWrite(M2B,leftOutputB);
-    
     //----------------------------------------------------------------------------------------------------------------------------------
   }
   else //if the robot is in autonomous mode
   {
-    Serial.println("Autonomous Mode");
+    //Serial.println("Autonomous Mode"); //for debugging
+
+    //FOR TESTING - In autonomous mode, robot goes forward until it reaches an object, then it stops
+
+    //by default, set motors to go forward at constant speed
+    rightOutputA = 0;
+    rightOutputB = 30;
+    leftOutputA = 30;
+    leftOutputB = 0;
+
+    //Descreasing speed when approaching wall, and stopping at 40 mm from wall
+    if(range<70)
+    {
+      rightOutputA=0;
+      rightOutputB=range-40;
+      leftOutputA=range-40;
+      leftOutputB=0;
+
+      //set minimum value of zero for motor outputs
+      if(rightOutputB<0)
+      {
+        rightOutputB=0;
+      }
+      if(leftOutputA<0)
+      {
+        leftOutputA=0;
+      } 
+    }
   }
 
 
+  //output to motors after variables have been calculated by either remote control branch or autonomous branch
+  analogWrite(M1A,rightOutputA);
+  analogWrite(M1B,rightOutputB);
+  analogWrite(M2A,leftOutputA);
+  analogWrite(M2B,leftOutputB);
 
-  
+  //small delay between iterations of both remote control and autonomous mode. Not sure is this is necessary.
   delay(50);
 }

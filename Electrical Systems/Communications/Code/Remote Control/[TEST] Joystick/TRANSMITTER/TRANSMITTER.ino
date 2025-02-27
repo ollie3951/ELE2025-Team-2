@@ -62,12 +62,12 @@ void loop()
   xVal = analogRead(xAxis);
   yVal = analogRead(yAxis);
 
-  /*
+  
   //printing joystick values to serial monitor for debugging
   char buffer[50];
   sprintf(buffer, "x-axis: %d | y-axis: %d", xVal, yVal);
   Serial.println(buffer);
-  */
+  
 
   //mapping y-axis value to a change in angle of fixed servo
   mapVal = map(yVal, 0, 1023, 0, 20);
