@@ -35,8 +35,8 @@ void setup()
 {
   // configure the sensors
   qtr.setTypeRC();
-  qtr.setSensorPins((const uint8_t[]){3, 4, 5, 6, 7, 8, 9, 10}, SensorCount);
-  qtr.setEmitterPin(2);
+  qtr.setSensorPins((const uint8_t[]){33, 34, 35, 36, 37, 38, 39, 40}, SensorCount);
+  //qtr.setEmitterPin(2);
 
   delay(500);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -75,7 +75,7 @@ void loop()
 {
   // read calibrated sensor values and obtain a measure of the line position
   // from 0 to 5000 (for a white line, use readLineWhite() instead)
-  uint16_t position = qtr.readLineBlack(sensorValues);
+  uint16_t position1 = qtr.readLineBlack(sensorValues);
 
   // print the sensor values as numbers from 0 to 1000, where 0 means maximum
   // reflectance and 1000 means minimum reflectance, followed by the line
@@ -85,7 +85,7 @@ void loop()
     Serial.print(sensorValues[i]);
     Serial.print('\t');
   }
-  Serial.println(position);
+  Serial.println(position1);
 
   delay(250);
 }
