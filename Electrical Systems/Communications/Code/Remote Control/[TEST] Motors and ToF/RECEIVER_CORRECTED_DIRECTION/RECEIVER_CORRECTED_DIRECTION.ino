@@ -87,8 +87,8 @@ void loop()
   if(radio.available()) //if data has been received
   {
     radio.read(&receiveData, sizeof(receiveData)); //read the data array received
-    Serial.println(receiveData[0]);
-    Serial.println(receiveData[1]);
+    //Serial.println(receiveData[0]);
+    //Serial.println(receiveData[1]);
     Serial.println(receiveData[2]);
 
     /*
@@ -108,13 +108,13 @@ void loop()
 
     //getting turnAmount value
   
-    if(receiveData[0]<500) //left turn indicated, should make turnAmount -ve and proportional to receiveData[0]
+    if(receiveData[0]<490) //left turn indicated, should make turnAmount -ve and proportional to receiveData[0]
     {
-      turnAmount = -(1023-receiveData[0])/10; //max turn is +-100
+      turnAmount = -(1023-receiveData[0])/15; //max turn is +-70
     }
     else if(receiveData[0]>530) //if right turn indicated, make turnAmount +ve and proportional to receiveData[0]
     {
-      turnAmount = +(receiveData[0]/10); //max turn is +-100
+      turnAmount = +(receiveData[0]/15); //max turn is +-70
     }
     else //when joystick is central on x-axis, make robot go straight/no turning
     {
@@ -124,37 +124,9 @@ void loop()
     if(receiveData[1]<500) //forward when joystick is pushed forwards along y-axis
     {
       rightOutputA = 0;
-      rightOutputB= (1023-receiveData[1])/7 - turnAmount; //make speed of motor depend on how far forward joystick is pushed
-      leftOutputA = (1023-receiveData[1])/7 + turnAmount; //make speed of motor depend on how far forward joystick is pushed
+      rightOutputB= (1023-receiveData[1])/12 - turnAmount; //make speed of motor depend on how far forward joystick is pushed
+      leftOutputA = (1023-receiveData[1])/12 + turnAmount; //make speed of motor depend on how far forward joystick is pushed
       leftOutputB = 0;
-
-      //setting limits to prevent values outside range 0-255 for motors
-      //MAX 255
-      if(rightOutputA > 255)
-      {
-        rightOutputA = 255;
-      }
-        if(leftOutputB > 255)
-      {
-        leftOutputB = 255;
-      }
-      //MIN 0
-      if(rightOutputA < 0)
-      {
-        rightOutputA = 0;
-      }
-      if(leftOutputB < 0)
-      {
-        leftOutputB = 0;
-      }
-    
-    }
-    else if(receiveData[1]>530) //reverse when joystick is pushed backwards along y-axis
-    {
-      rightOutputA = receiveData[1]/7 - turnAmount; //make speed of motor depend on how far backward joystick is pushed
-      rightOutputB = 0;
-      leftOutputA = 0;
-      leftOutputB = receiveData[1]/7 + turnAmount; //make speed of motor depend on how far backward joystick is pushed
 
       //setting limits to prevent values outside range 0-255 for motors
       //MAX 255
@@ -175,6 +147,34 @@ void loop()
       {
         leftOutputA = 0;
       }
+    
+    }
+    else if(receiveData[1]>530) //reverse when joystick is pushed backwards along y-axis
+    {
+      rightOutputA = receiveData[1]/12 - turnAmount; //make speed of motor depend on how far backward joystick is pushed
+      rightOutputB = 0;
+      leftOutputA = 0;
+      leftOutputB = receiveData[1]/12 + turnAmount; //make speed of motor depend on how far backward joystick is pushed
+
+      //setting limits to prevent values outside range 0-255 for motors
+      //MAX 255
+      if(rightOutputA > 255)
+      {
+        rightOutputA = 255;
+      }
+        if(leftOutputB > 255)
+      {
+        leftOutputB = 255;
+      }
+      //MIN 0
+      if(rightOutputA < 0)
+      {
+        rightOutputA = 0;
+      }
+      if(leftOutputB < 0)
+      {
+        leftOutputB = 0;
+      }
     }
     else //braking when y-axis value is close to the center point, turnAmount here alone to allow turning on the spot
     {
@@ -184,21 +184,23 @@ void loop()
       leftOutputA = 0;
       leftOutputB = 0;
 
-      //if right turn is indicated by joystick
+      //if left turn is indicated by joystick
       if(turnAmount<0)
       {
-        rightOutputA = 0; //right wheel reverse
-        rightOutputB = -turnAmount;
-        leftOutputA = 0; //left wheel forward
-        leftOutputB = -turnAmount;
+        //Serial.println(turnAmount);
+        rightOutputA = 0;
+        rightOutputB = -turnAmount; //right wheel forward
+        leftOutputA = 0; 
+        leftOutputB = -turnAmount; //left wheel reverse
       }
 
-      //if left turn is indicated by joystick
+      //if right turn is indicated by joystick
       if(turnAmount>0)
       {
-        rightOutputA = turnAmount; //right wheel forward
+        //Serial.println(turnAmount);
+        rightOutputA = turnAmount; //right wheel reverse
         rightOutputB = 0;
-        leftOutputA = turnAmount; //left wheel reverse
+        leftOutputA = turnAmount; //left wheel forward
         leftOutputB = 0;
       }
     }
@@ -217,11 +219,12 @@ void loop()
     leftOutputB = 0;
 
     //Descreasing speed when approaching wall, and stopping at 40 mm from wall
-    if(range<70)
+    Serial.println(range);
+    if(range<55)
     {
       rightOutputA=0;
-      rightOutputB=range-40;
-      leftOutputA=range-40;
+      rightOutputB=range-25;
+      leftOutputA=range-25;
       leftOutputB=0;
 
       //set minimum value of zero for motor outputs
