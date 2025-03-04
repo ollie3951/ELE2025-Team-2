@@ -1,4 +1,4 @@
-//ELE2025 Robot Project Team 2 : Riannan Mottram, Oliver Ross, Rhys Greaves, Yihan Mei
+//ELE2025 Robot Project Team 2 : Ríannan Mottram, Oliver Ross, Rhys Greaves, Yihan Mei
 
 //Code for Arduino MEGA receiver
 
