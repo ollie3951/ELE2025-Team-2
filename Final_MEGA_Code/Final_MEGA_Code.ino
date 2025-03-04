@@ -1,5 +1,4 @@
-//Ollie, 28/02/2025
-//Practicing remote control of motors and ToF sensor
+//ELE2025 Robot Project Team 2 : Riannan Mottram, Oliver Ross, Rhys Greaves, Yihan Mei
 
 //Code for Arduino MEGA receiver
 
@@ -11,6 +10,9 @@
 #include <SPI.h>
 #include <nRF24L01.h>
 #include <RF24.h>
+
+//Line following library
+#include <QTRSensors.h>
 
 //ToF libraries
 #include <Wire.h>
@@ -49,6 +51,22 @@ const byte address[6] = "TEAM2"; //This address can be any 5 charcter string e.g
 Adafruit_VL6180X vl = Adafruit_VL6180X(); 
 
 
+//Max speed for line following
+const int maxSpeed = 230; //value in range 0-255, ensure high enough to complete course in 10 seconds
+
+// PD Properties for line following
+const double Kp = 0.0657; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
+const double Kd = 0.657; //derivative term, initial value of 10*Kp
+int lastError = 0; //hold the last error for implementing the derivative term
+const int goal = 3500; //goal is for sensor array to be positioned with the middle on the line 
+int adjustment; //holds motor adjustment
+
+//implementing line following sensor
+QTRSensors qtr;
+const uint8_t SensorCount = 8;
+uint16_t sensorValues[SensorCount];
+
+
 void setup()
 {
   Serial.begin(9600); //begin serial monitor at 9600 baud rate
@@ -74,6 +92,13 @@ void setup()
     while (1);
   }
   Serial.println("Sensor found!");
+
+  // configure the line sensor
+  qtr.setTypeRC();
+  qtr.setSensorPins((const uint8_t[]){33, 34, 35, 36, 37, 38, 39, 40}, SensorCount);
+  //qtr.setEmitterPin(2);
+
+  calibrateLineSensor(); //calls custom function to calibrate the line sensor to the environment
 }
 
 
@@ -151,35 +176,106 @@ void loop()
   //----------------------------------------------------------------------------------------------------------------------------------
   else //if the robot is in autonomous mode
   {
-    //read distance from ToF
-    uint8_t range = vl.readRange(); 
     
-    //FOR TESTING - In autonomous mode, robot goes forward until it reaches an object, then it stops
+    //read distance from ToF to allow stopping at wall
+    uint8_t range = vl.readRange(); 
 
-    //by default, set motors to go forward at constant speed
+    //PID procedure for line following:
+    //read position of sensor array over line. 3500 means right in the middle.
+    uint16_t position1 = qtr.readLineBlack(sensorValues);
+    // calculate how far off the sensor array position is from the goal of 3500
+    int error = goal - position1;
+    //Serial.print("Error"); Serial.println(error); //check error for debugging
+    //calculate motor adjustment required using PD terms
+    adjustment = Kp*error + Kd*(error - lastError);
+    //Serial.print("\n Adjustment"); Serial.println(adjustment); //check adjustment for debugging
+    //store error for the next iteration
+    lastError = error;
+    //adjust motor outputs
     rightOutputA = 0;
-    rightOutputB = 30;
-    leftOutputA = 30;
+    rightOutputB = constrain(maxSpeed - adjustment, 0, maxSpeed); //constrain ensures after adjustment is added value stays on range 0-maxSpeed
+    leftOutputA = constrain(maxSpeed + adjustment, 0, maxSpeed); //IF ROBOT PUSHES AWAY FROM LINE, SWITCH + AND - HERE
     leftOutputB = 0;
-
-    //Descreasing speed when approaching wall, and stopping at 40 mm from wall
-    Serial.println(range);
-    if(range<55)
+    //IF FULLY OFF LINE, PIVOT ON THE SPOT TO FIND LINE AGAIN IMMEDIATELY
+    if(position1==0) //if veering off line to left
+    {
+      //left wheel forward, right wheel reverse
+      rightOutputA = 150;
+      rightOutputB = 0;
+      leftOutputA = 150;
+      leftOutputB = 0;
+    }
+    if(position1==7000) //if veering off line to right
+    {
+      //left wheel reverse, right wheel forward
+      rightOutputA = 0;
+      rightOutputB = 150;
+      leftOutputA = 0;
+      leftOutputB = 150;
+    }
+    //End of PID line following procedure
+    
+    /*
+    //Descreasing speed when approaching wall, and stopping at 20 mm from wall
+    //Serial.println(range); //checking range value for debugging
+    if(range<80)
     {
       rightOutputA=0;
-      rightOutputB=constrain(range-25, 0, 255);
-      leftOutputA=constrain(range-25, 0, 255);
+      rightOutputB=constrain(rightOutputB-rightOutputB*((-1/60)*range+4/3), 0, 255); //MIGHT STOP EARLY DUE TO NOT ENOUGH TORQUE. NEED TO DETERMINE MIN TORQUE
+      leftOutputA=constrain(leftOutputA-leftOutputA*((-1/60)*range+4/3), 0, 255);
       leftOutputB=0;
     }
+    */
+    
   }
-
-
   //output to motors after variables have been calculated by either remote control branch or autonomous branch
   analogWrite(M1A,rightOutputA);
   analogWrite(M1B,rightOutputB);
   analogWrite(M2A,leftOutputA);
   analogWrite(M2B,leftOutputB);
-
-  //small delay between iterations of both remote control and autonomous mode. Not sure is this is necessary.
-  //delay(50);
 }
+
+
+
+// FUNCTIONS -----------------------------------------------------------------------------------------------------
+
+void calibrateLineSensor() //function which carries out calibration process for line sensor
+{
+  delay(500);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH); // turn on Arduino's LED to indicate we are in calibration mode
+
+  // 2.5 ms RC read timeout (default) * 10 reads per calibrate() call
+  // = ~25 ms per calibrate() call.
+  // Call calibrate() 400 times to make calibration take about 10 seconds.
+  for (uint16_t i = 0; i < 400; i++)
+  {
+    qtr.calibrate();
+  }
+  digitalWrite(LED_BUILTIN, LOW); // turn off Arduino's LED to indicate we are through with calibration
+
+  //UNCOMMENT TO SEE RESULTS OF CALIBRATION IN SERIAL MONITOR
+  /*
+  // print the calibration minimum values measured when emitters were on
+  Serial.begin(9600);
+  for (uint8_t i = 0; i < SensorCount; i++)
+  {
+    Serial.print(qtr.calibrationOn.minimum[i]);
+    Serial.print(' ');
+  }
+  Serial.println();
+
+  // print the calibration maximum values measured when emitters were on
+  for (uint8_t i = 0; i < SensorCount; i++)
+  {
+    Serial.print(qtr.calibrationOn.maximum[i]);
+    Serial.print(' ');
+  }
+  Serial.println();
+  Serial.println();
+  delay(1000);
+  */
+  
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
