@@ -42,7 +42,7 @@ int transmitData[4]; //first element is xVal, second element is yVal, third elem
 void setup() 
 {
   //open serial monitor
-  Serial.begin(9600);
+  //Serial.begin(9600);
   //Serial.println("Serial Monitor Open");
 
   //state change interrupt
@@ -77,12 +77,12 @@ void loop()
   //setting robot state
   transmitData[2] = state;
   //finding position of servo arm
-  transmitData[3] = analogRead(A1);
+  transmitData[3] = analogRead(potPin);
     
   //printing joystick values to serial monitor for debugging
-  char buffer[70];
-  sprintf(buffer, "x-axis: %d | y-axis: %d | state: %d | Pot Reading: %d", transmitData[0], transmitData[1], transmitData[2], transmitData[3]);
-  Serial.println(buffer);
+  //char buffer[70];
+  //sprintf(buffer, "x-axis: %d | y-axis: %d | state: %d | Pot Reading: %d", transmitData[0], transmitData[1], transmitData[2], transmitData[3]);
+  //Serial.println(buffer);
 
   //sending all data to the receiver
   radio.write(&transmitData, sizeof(transmitData));
