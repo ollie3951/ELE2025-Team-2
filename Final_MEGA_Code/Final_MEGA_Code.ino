@@ -29,8 +29,8 @@
 
 
 //array for receiving radio data from remote controller
-int receiveData[3] = {512, 512, 0}; //initialise braking to prevent immediate motion after turning on, and in remote control state
-//first element is xVal(direction), second element is yVal(speed), third element is robot state
+int receiveData[4] = {512, 512, 0, 512}; //initialise braking to prevent immediate motion after turning on, in remote control state, and servo in middle position
+//first element is xVal(direction), second element is yVal(speed), third element is robot state, fourth element is potentiometer position
 
 //variable to give how much speed of wheels should be changed for turn based on joystick x-axis reading
 int turnAmount = 0; //initially assume to turning
