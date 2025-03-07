@@ -1,5 +1,4 @@
-//Ollie, 16/02/2025
-//Practicing controlling motor speed and direction remotely
+//ELE2025 Robot Project Team 2 : Ríannan Mottram, Oliver Ross, Rhys Greaves, Yihan Mei
 
 //Code for Arduino UNO transmitter
 
