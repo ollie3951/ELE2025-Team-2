@@ -18,6 +18,9 @@
 #include <Wire.h>
 #include "Adafruit_VL6180X.h"
 
+//servo library
+#include <Servo.h>
+
 
 //pins for motor control
 #define M1A 9 //M1A is connected to Arduino pin 9
@@ -26,6 +29,7 @@
 #define M2B 12 //M2B is connected to Arduino pin 12
 //M1A and M1B for right motor
 //M2A and M2B for left motor
+#define servoPin 13 //pin for servo motor
 
 
 //array for receiving radio data from remote controller
@@ -41,6 +45,12 @@ int rightOutputB = 0; //start braking
 int leftOutputA = 0; //start braking
 int leftOutputB = 0; //start braking
 
+//output to servo motor
+int servoOut = 43;
+
+//instantiating servo object
+Servo myServo;
+
 //starting radio object of class RF24
 RF24 radio(7, 8); //CE and CSN connected to digital pins 7 and 8 respectively
 
@@ -50,13 +60,21 @@ const byte address[6] = "TEAM2"; //This address can be any 5 charcter string e.g
 //creating ToF object
 Adafruit_VL6180X vl = Adafruit_VL6180X(); 
 
+// PD Properties for line following
 
+/* //DAMAGES MOTORS. COMPLETES COURSE IN 8.5 SECONDS. ONLY USE ON DAY OF DEMO
 //Max speed for line following
 const int maxSpeed = 230; //value in range 0-255, ensure high enough to complete course in 10 seconds
-
-// PD Properties for line following
 const double Kp = 0.0657; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
 const double Kd = 0.657; //derivative term, initial value of 10*Kp
+*/
+
+//FOR TESTING ONLY. DO NOT USE ON DAY OF DEMO
+//Max speed for line following
+const int maxSpeed = 130; //value in range 0-255, ensure high enough to complete course in 10 seconds
+const double Kp = 0.0371; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
+const double Kd = 0.371; //derivative term, initial value of 10*Kp
+
 int lastError = 0; //hold the last error for implementing the derivative term
 const int goal = 3500; //goal is for sensor array to be positioned with the middle on the line 
 int adjustment; //holds motor adjustment
@@ -70,6 +88,9 @@ uint16_t sensorValues[SensorCount];
 void setup()
 {
   Serial.begin(9600); //begin serial monitor at 9600 baud rate
+
+  //attaching servo motor
+  myServo.attach(servoPin);
 
   //beginning radio communication
   radio.begin();
@@ -111,7 +132,12 @@ void loop()
     //Serial.println(receiveData[0]); //Turning
     //Serial.println(receiveData[1]); //Forward/reverse
     //Serial.println(receiveData[2]); //State
+    //Serial.println(map(receiveData[3], 0, 1023, 43, 90));
   }
+
+  //updates servo motor position 
+  servoOut = map(receiveData[3], 0, 1023, 43, 90);
+  myServo.write(servoOut);
 
 
   if(receiveData[2]==0) //when robot is in remote control state
@@ -130,7 +156,7 @@ void loop()
       turnAmount = 0; 
     }
   
-    if(receiveData[1]<500) //forward when joystick is pushed forwards along y-axis
+    if(receiveData[1]<490) //forward when joystick is pushed forwards along y-axis
     {
       rightOutputA = 0;
       rightOutputB = constrain((1023-receiveData[1])/12 + turnAmount, 0, 255); //make speed of motor depend on how far forward joystick is pushed
