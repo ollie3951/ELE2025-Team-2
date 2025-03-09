@@ -21,6 +21,9 @@ const byte address[6] = "TEAM2"; //This address can be any 5 charcter string e.g
 //state change pin
 #define statePin 2
 
+//LED indicator pin
+#define ledPin 7
+
 //potentiometer pin for servo arm
 #define potPin A1
 
@@ -47,6 +50,9 @@ void setup()
   //state change interrupt
   pinMode(statePin, INPUT);
   attachInterrupt(digitalPinToInterrupt(statePin), isr_stateChange, FALLING);
+
+  //LED indicator pin as output
+  pinMode(ledPin, OUTPUT);
 
   //joystick pins as inputs
   pinMode(xAxis, INPUT);
@@ -78,13 +84,16 @@ void loop()
   //finding position of servo arm
   transmitData[3] = analogRead(potPin);
     
-  //printing joystick values to serial monitor for debugging
+  //printing values to serial monitor for debugging
   //char buffer[70];
   //sprintf(buffer, "x-axis: %d | y-axis: %d | state: %d | Pot Reading: %d", transmitData[0], transmitData[1], transmitData[2], transmitData[3]);
   //Serial.println(buffer);
 
   //sending all data to the receiver
   radio.write(&transmitData, sizeof(transmitData));
+
+  //indicating if in remote control or autonomous mode using LED. ON is remote control, OFF is autonomous.
+  digitalWrite(ledPin, !state);
 
   delay(20); //delay between sending new data to receiver
 
