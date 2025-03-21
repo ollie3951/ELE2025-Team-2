@@ -28,7 +28,7 @@ const byte address[6] = "TEAM2"; //This address can be any 5 charcter string e.g
 #define potPin A1
 
 //state variable
-bool state = 0; //0 is remote control, 1 is autonomous
+volatile bool state = 0; //0 is remote control, 1 is autonomous
 
 //prevTime to prevent button bouncing
 unsigned long prevTime = 0;
@@ -62,7 +62,11 @@ void setup()
   pinMode(potPin, INPUT);
 
   //beginning radio communication
-  radio.begin();
+  //radio.begin();
+  if (! radio.begin()) {
+    Serial.println("Failed to connect NRF");
+    while (1);
+  }
   //setting radio channel using previously defined channel address
   radio.openWritingPipe(address); //writing pipe because this is transmitter code
   //setting power amplifier level. For this test setting to min, but if using higher value in robot to increase range consider adding bypass capacitor between +3.3V and GND to stabilise voltage
@@ -103,9 +107,13 @@ void loop()
 //Interrupt for changing state of robot between remote control and autonomous
 void isr_stateChange()
 {
-  if(millis()-prevTime>1000) //if more than a second has passed since last state change
+  if(millis()-prevTime>500) //if more than a second has passed since last state change
   {
-    prevTime = millis(); //update previous time 
-    state = !state; //change state
+    prevTime = millis(); //update previous time
+    
+    if(analogRead(potPin)<10) //only change state when potentiometer pointed down
+    {
+      state = !state; //change state
+    }
   }
 }
