@@ -1,1 +1,0 @@
-Line following sensor array: https://www.sparkfun.com/sparkfun-line-follower-array.html# (provisional)
