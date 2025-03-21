@@ -28,7 +28,12 @@ void setup()
   Serial.begin(9600); //troubleshooting by checking message sent
 
   //beginning radio communication
-  radio.begin();
+  //radio.begin();
+  //radio.begin();
+  if (! radio.begin()) {
+    Serial.println("Failed to connect NRF");
+    while (1);
+  }
   //setting radio channel using previously defined channel address
   radio.openWritingPipe(address); //writing pipe because this is transmitter code
   //setting power amplifier level. For this test setting to min, but if using higher value in robot to increase range consider adding bypass capacitor between +3.3V and GND to stabilise voltage
@@ -47,6 +52,7 @@ void loop()
   
   
   radio.write(&textNumbered, sizeof(textNumbered)); //sending the message through channel to the receiver
+  Serial.println(i);
   delay(1000);
   i = i + 1; //increment i for next message 
 } 

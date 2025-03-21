@@ -65,20 +65,21 @@ Adafruit_VL6180X vl = Adafruit_VL6180X();
 
 // PD Properties for line following
 
-/*
+
 //DAMAGES MOTORS. COMPLETES COURSE IN 8.5 SECONDS. ONLY USE ON DAY OF DEMO
 //Max speed for line following
 const int maxSpeed = 230; //value in range 0-255, ensure high enough to complete course in 10 seconds
 const double Kp = 0.0657; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
 const double Kd = 0.657; //derivative term, initial value of 10*Kp
-*/
 
+
+/*
 //FOR TESTING ONLY. DO NOT USE ON DAY OF DEMO
 //Max speed for line following
 const int maxSpeed = 130; //value in range 0-255, ensure high enough to complete course in 10 seconds
 const double Kp = 0.0371; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
 const double Kd = 0.371; //derivative term, initial value of 10*Kp
-
+*/
 
 int lastError = 0; //hold the last error for implementing the derivative term
 const int goal = 3500; //goal is for sensor array to be positioned with the middle on the line 
@@ -165,11 +166,11 @@ void loop()
     //getting turnAmount value
     if(receiveData[0]<495) //left turn indicated, should make turnAmount -ve and proportional to receiveData[0]
     {
-      turnAmount = -(1023-receiveData[0])/15; //max turn is +-70
+      turnAmount = -(1023-receiveData[0])/10; //max turn is +-100
     }
     else if(receiveData[0]>530) //if right turn indicated, make turnAmount +ve and proportional to receiveData[0]
     {
-      turnAmount = +(receiveData[0]/15); //max turn is +-70
+      turnAmount = +(receiveData[0]/10); //max turn is +-100
     }
     else //when joystick is central on x-axis, make robot go straight/no turning
     {
@@ -179,16 +180,16 @@ void loop()
     if(receiveData[1]<495) //forward when joystick is pushed forwards along y-axis
     {
       rightOutputA = 0;
-      rightOutputB = constrain((1023-receiveData[1])/12 + turnAmount, 0, 255); //make speed of motor depend on how far forward joystick is pushed
-      leftOutputA = constrain((1023-receiveData[1])/12 - turnAmount, 0, 255); //make speed of motor depend on how far forward joystick is pushed
+      rightOutputB = constrain((1023-receiveData[1])/8 + turnAmount, 0, 255); //make speed of motor depend on how far forward joystick is pushed
+      leftOutputA = constrain((1023-receiveData[1])/8 - turnAmount, 0, 255); //make speed of motor depend on how far forward joystick is pushed
       leftOutputB = 0;
     }
     else if(receiveData[1]>530) //reverse when joystick is pushed backwards along y-axis
     {
-      rightOutputA = constrain(receiveData[1]/12 + turnAmount, 0, 255); //make speed of motor depend on how far backward joystick is pushed
+      rightOutputA = constrain(receiveData[1]/8 + turnAmount, 0, 255); //make speed of motor depend on how far backward joystick is pushed
       rightOutputB = 0;
       leftOutputA = 0;
-      leftOutputB = constrain(receiveData[1]/12 - turnAmount, 0, 255); //make speed of motor depend on how far backward joystick is pushed
+      leftOutputB = constrain(receiveData[1]/8 - turnAmount, 0, 255); //make speed of motor depend on how far backward joystick is pushed
     }
     else //braking when y-axis value is close to the center point, turnAmount here alone to allow turning on the spot
     {
@@ -235,7 +236,7 @@ void loop()
       analogWrite(M2A,130);
       analogWrite(M2B,0);
 
-      delay(500);
+      delay(850);
 
       myServo.write(90); //pick up the ball
 
@@ -296,8 +297,13 @@ void loop()
 
       myServo.write(43);
 
-      while(1) //stay here
+      while(receiveData[3]<60) //stay here while potentiometer still faces down
       {
+        //keep checking servo position
+        if(radio.available())
+        {
+          radio.read(&receiveData, sizeof(receiveData));
+        }
       }
       
     }

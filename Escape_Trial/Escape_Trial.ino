@@ -65,20 +65,21 @@ Adafruit_VL6180X vl = Adafruit_VL6180X();
 
 // PD Properties for line following
 
-/*
+
 //DAMAGES MOTORS. COMPLETES COURSE IN 8.5 SECONDS. ONLY USE ON DAY OF DEMO
 //Max speed for line following
-const int maxSpeed = 230; //value in range 0-255, ensure high enough to complete course in 10 seconds
-const double Kp = 0.0657; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
-const double Kd = 0.657; //derivative term, initial value of 10*Kp
-*/
+const int maxSpeed = 255; //value in range 0-255, ensure high enough to complete course in 10 seconds
+const double Kp = 0.0729; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
+const double Kd = 0.729; //derivative term, initial value of 10*Kp
 
+
+/*
 //FOR TESTING ONLY. DO NOT USE ON DAY OF DEMO
 //Max speed for line following
 const int maxSpeed = 130; //value in range 0-255, ensure high enough to complete course in 10 seconds
 const double Kp = 0.0371; //proportional term, maxspeed/3500 gives max motor speed when error is maximum
 const double Kd = 0.371; //derivative term, initial value of 10*Kp
-
+*/
 
 int lastError = 0; //hold the last error for implementing the derivative term
 const int goal = 3500; //goal is for sensor array to be positioned with the middle on the line 
@@ -296,8 +297,13 @@ void loop()
 
       myServo.write(43);
 
-      while(1) //stay here
+      while(receiveData[3]<60) //stay here while potentiometer still faces down
       {
+        //keep checking servo position
+        if(radio.available())
+        {
+          radio.read(&receiveData, sizeof(receiveData));
+        }
       }
       
     }

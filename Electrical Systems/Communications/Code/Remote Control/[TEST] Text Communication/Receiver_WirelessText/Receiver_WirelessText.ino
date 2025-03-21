@@ -26,7 +26,11 @@ void setup()
   Serial.begin(9600); //begin serial monitor at 9600 baud rate
 
   //beginning radio communication
-  radio.begin();
+  //radio.begin();
+  if (! radio.begin()) {
+    Serial.println("Failed to connect NRF");
+    while (1);
+  }
   //setting radio channel using previously defined channel address
   radio.openReadingPipe(0, address); //writing pipe because this is receiver code
   //setting power amplifier level. For this test setting to min, but if using higher value in robot to increase range consider adding bypass capacitor between +3.3V and GND to stabilise voltage
